@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ContactListMvc.Data;
 using ContactListMvc.Models;
 
-namespace ContactListMvc
+namespace ContactListMvc.Controllers
 {
     public class ContactListController : Controller
     {
@@ -22,7 +22,8 @@ namespace ContactListMvc
         // GET: ContactList
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ContactListEntry.ToListAsync());
+            var contactList = await _context.ContactListEntry.ToListAsync();
+            return View(contactList);
         }
 
         // GET: ContactList/Details/5

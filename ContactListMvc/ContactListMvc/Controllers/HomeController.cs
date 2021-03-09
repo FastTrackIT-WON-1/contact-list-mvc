@@ -18,6 +18,7 @@ namespace ContactListMvc.Controllers
             _logger = logger;
         }
 
+      
         public IActionResult Index()
         {
             return View();
@@ -32,6 +33,11 @@ namespace ContactListMvc.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult Test()
+        {
+            return View("Test");
         }
     }
 }
