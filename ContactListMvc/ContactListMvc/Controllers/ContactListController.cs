@@ -3,27 +3,38 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ContactListMvc.Data;
 using ContactListMvc.Models;
+using ContactList.Abstractions;
 
 namespace ContactListMvc.Controllers
 {
     public class ContactListController : Controller
     {
-        private readonly DatabaseContext _context;
+        private readonly IContactListEntryService service;
 
-        public ContactListController(DatabaseContext context)
+        public ContactListController(IContactListEntryService service)
         {
-            _context = context;
+            this.service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         // GET: ContactList
         public async Task<IActionResult> Index()
         {
-            var contactList = await _context.ContactListEntry.ToListAsync();
-            return View(contactList);
+            List<ContactList.Models.ContactListEntry> contactList = await service.GetAllAsync();
+
+            IEnumerable<ContactListEntry> contactListViewModels = contactList.Select(e => new ContactListEntry
+            {
+                Id = e.Id,
+                Type = e.Type,
+                Name = e.Name,
+                DateOfBirth = e.DateOfBirth,
+                Address = e.Address,
+                PhoneNumber = e.PhoneNumber,
+                Email = e.Email
+            });
+
+            return View(contactListViewModels);
         }
 
         // GET: ContactList/Details/5
@@ -34,14 +45,25 @@ namespace ContactListMvc.Controllers
                 return NotFound();
             }
 
-            var contactListEntry = await _context.ContactListEntry
-                .FirstOrDefaultAsync(m => m.Id == id);
+            ContactList.Models.ContactListEntry contactListEntry = await service.GetByIdAsync(id.Value);
+
             if (contactListEntry == null)
             {
                 return NotFound();
             }
 
-            return View(contactListEntry);
+            var viewModel = new ContactListEntry
+            {
+                Id = contactListEntry.Id,
+                Type = contactListEntry.Type,
+                Name = contactListEntry.Name,
+                DateOfBirth = contactListEntry.DateOfBirth,
+                Address = contactListEntry.Address,
+                PhoneNumber = contactListEntry.PhoneNumber,
+                Email = contactListEntry.Email
+            };
+
+            return View(viewModel);
         }
 
         // GET: ContactList/Create
@@ -59,10 +81,22 @@ namespace ContactListMvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(contactListEntry);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                bool createSuccess = await service.CreateAsync(new ContactList.Models.ContactListEntry
+                {
+                    Type = contactListEntry.Type,
+                    Name = contactListEntry.Name,
+                    DateOfBirth = contactListEntry.DateOfBirth,
+                    Address = contactListEntry.Address,
+                    PhoneNumber = contactListEntry.PhoneNumber,
+                    Email = contactListEntry.Email
+                });
+
+                if (createSuccess)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
             }
+
             return View(contactListEntry);
         }
 
@@ -74,12 +108,25 @@ namespace ContactListMvc.Controllers
                 return NotFound();
             }
 
-            var contactListEntry = await _context.ContactListEntry.FindAsync(id);
+            ContactList.Models.ContactListEntry contactListEntry = await service.GetByIdAsync(id.Value);
+
             if (contactListEntry == null)
             {
                 return NotFound();
             }
-            return View(contactListEntry);
+
+            var viewModel = new ContactListEntry
+            {
+                Id = contactListEntry.Id,
+                Type = contactListEntry.Type,
+                Name = contactListEntry.Name,
+                DateOfBirth = contactListEntry.DateOfBirth,
+                Address = contactListEntry.Address,
+                PhoneNumber = contactListEntry.PhoneNumber,
+                Email = contactListEntry.Email
+            };
+
+            return View(viewModel);
         }
 
         // POST: ContactList/Edit/5
@@ -98,12 +145,26 @@ namespace ContactListMvc.Controllers
             {
                 try
                 {
-                    _context.Update(contactListEntry);
-                    await _context.SaveChangesAsync();
+                    bool updateSuccess = await service.UpdateAsync(id, new ContactList.Models.ContactListEntry
+                    {
+                        Type = contactListEntry.Type,
+                        Name = contactListEntry.Name,
+                        DateOfBirth = contactListEntry.DateOfBirth,
+                        Address = contactListEntry.Address,
+                        PhoneNumber = contactListEntry.PhoneNumber,
+                        Email = contactListEntry.Email
+                    });
+
+                    if (updateSuccess)
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ContactListEntryExists(contactListEntry.Id))
+                    bool exists = await service.EntryExistsAsync(contactListEntry.Id);
+
+                    if (!exists)
                     {
                         return NotFound();
                     }
@@ -112,8 +173,8 @@ namespace ContactListMvc.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
+
             return View(contactListEntry);
         }
 
@@ -125,14 +186,25 @@ namespace ContactListMvc.Controllers
                 return NotFound();
             }
 
-            var contactListEntry = await _context.ContactListEntry
-                .FirstOrDefaultAsync(m => m.Id == id);
+            ContactList.Models.ContactListEntry contactListEntry = await service.GetByIdAsync(id.Value);
+
             if (contactListEntry == null)
             {
                 return NotFound();
             }
 
-            return View(contactListEntry);
+            var viewModel = new ContactListEntry
+            {
+                Id = contactListEntry.Id,
+                Type = contactListEntry.Type,
+                Name = contactListEntry.Name,
+                DateOfBirth = contactListEntry.DateOfBirth,
+                Address = contactListEntry.Address,
+                PhoneNumber = contactListEntry.PhoneNumber,
+                Email = contactListEntry.Email
+            };
+
+            return View(viewModel);
         }
 
         // POST: ContactList/Delete/5
@@ -140,15 +212,8 @@ namespace ContactListMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var contactListEntry = await _context.ContactListEntry.FindAsync(id);
-            _context.ContactListEntry.Remove(contactListEntry);
-            await _context.SaveChangesAsync();
+            await service.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ContactListEntryExists(int id)
-        {
-            return _context.ContactListEntry.Any(e => e.Id == id);
         }
     }
 }

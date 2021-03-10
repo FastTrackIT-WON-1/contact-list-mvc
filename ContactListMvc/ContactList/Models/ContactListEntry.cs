@@ -1,8 +1,6 @@
-﻿using ContactList.Models;
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
 
-namespace ContactListMvc.Models
+namespace ContactList.Models
 {
     public class ContactListEntry
     {
@@ -12,15 +10,12 @@ namespace ContactListMvc.Models
 
         public string Name { get; set; }
 
-        [DataType(DataType.Date)]
         public DateTime? DateOfBirth { get; set; }
 
         public string Address { get; set; }
 
-        [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
 
-        [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
     }
 }
