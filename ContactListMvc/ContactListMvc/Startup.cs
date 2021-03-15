@@ -9,6 +9,8 @@ using ContactList.Abstractions;
 using ContactList.Services;
 using ContactList.Infrastructure.Database.Repositories;
 using ContactList.Infrastructure.Api.Repositories;
+using ContactList.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace ContactListMvc
 {
@@ -24,6 +26,10 @@ namespace ContactListMvc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<ContactListApiOptions>(Configuration.GetSection("ContactListApi"));
+            services.AddSingleton(
+                serviceProvider => serviceProvider.GetService<IOptions<ContactListApiOptions>>().Value);
+
             services.AddControllersWithViews();
 
             services.AddDbContext<DatabaseContext>(options =>

@@ -1,4 +1,5 @@
 ﻿using ContactList.Abstractions;
+using ContactList.Configuration;
 using ContactList.Models;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace ContactList.Services
     public class ContactListEntryService : IContactListEntryService
     {
         private readonly IContactListEntryRepository repository;
-
+        
         public ContactListEntryService(IContactListEntryRepository repository)
         {
             this.repository = repository ?? throw new ArgumentNullException(nameof(repository));

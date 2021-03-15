@@ -1,26 +1,29 @@
-﻿using ContactListMvc.Models;
+﻿using ContactList.Configuration;
+using ContactListMvc.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
+using Microsoft.Extensions.Options;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ContactListMvc.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ContactListApiOptions _options;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(
+            ILogger<HomeController> logger,
+            IOptions<ContactListApiOptions> options)
         {
             _logger = logger;
+            _options = options.Value;
         }
 
       
         public IActionResult Index()
         {
+            ViewBag.ContactListApiUrl = _options.Url;
             return View();
         }
 

@@ -1,4 +1,5 @@
 ﻿using ContactList.Abstractions;
+using ContactList.Configuration;
 using ContactList.Infrastructure.Api.Entities;
 using ContactList.Models;
 using System;
@@ -12,6 +13,13 @@ namespace ContactList.Infrastructure.Api.Repositories
 {
     public class ContactListEntryApiRepository : IContactListEntryRepository
     {
+        private readonly ContactListApiOptions options;
+
+        public ContactListEntryApiRepository(ContactListApiOptions options)
+        {
+            this.options = options;
+        }
+
         public Task<bool> CreateAsync(ContactListEntry entry)
         {
             throw new NotImplementedException();
@@ -26,7 +34,7 @@ namespace ContactList.Infrastructure.Api.Repositories
         {
             using (HttpClient client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://jsonplaceholder.typicode.com/");
+                client.BaseAddress = new Uri(this.options.Url);
                 HttpResponseMessage response = await client.GetAsync("/users");
 
                 if (response.IsSuccessStatusCode)
