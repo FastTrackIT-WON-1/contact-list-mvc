@@ -12,6 +12,7 @@ using ContactList.Infrastructure.Api.Repositories;
 using ContactList.Configuration;
 using Microsoft.Extensions.Options;
 using ContactListMvc.Configuration;
+using ContactList.Infrastructure.InMemoryDatabase;
 
 namespace ContactListMvc
 {
@@ -27,9 +28,12 @@ namespace ContactListMvc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            InMemoryDatabase memoryDb = new InMemoryDatabase(InMemoryDatabase.CreateSeedData());
+
             services.Configure<ContactListApiOptions>(Configuration.GetSection("ContactListApi"));
             services.Configure<CompanySettings>(Configuration.GetSection("DevelopmentCompany"));
 
+            services.AddSingleton(memoryDb);
             services.AddSingleton(
                 serviceProvider => serviceProvider.GetService<IOptions<ContactListApiOptions>>().Value);
 
@@ -40,7 +44,8 @@ namespace ContactListMvc
 
             services.AddTransient<IContactListEntryService, ContactListEntryService>();
             //services.AddTransient<IContactListEntryRepository, ContactListEntryDbRepository>();
-            services.AddTransient<IContactListEntryRepository, ContactListEntryApiRepository>();
+            // services.AddTransient<IContactListEntryRepository, ContactListEntryApiRepository>();
+            services.AddTransient<IContactListEntryRepository, ContactListEntryInMemoryRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
