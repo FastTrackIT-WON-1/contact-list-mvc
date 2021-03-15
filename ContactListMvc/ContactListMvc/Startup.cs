@@ -11,6 +11,7 @@ using ContactList.Infrastructure.Database.Repositories;
 using ContactList.Infrastructure.Api.Repositories;
 using ContactList.Configuration;
 using Microsoft.Extensions.Options;
+using ContactListMvc.Configuration;
 
 namespace ContactListMvc
 {
@@ -27,6 +28,8 @@ namespace ContactListMvc
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<ContactListApiOptions>(Configuration.GetSection("ContactListApi"));
+            services.Configure<CompanySettings>(Configuration.GetSection("DevelopmentCompany"));
+
             services.AddSingleton(
                 serviceProvider => serviceProvider.GetService<IOptions<ContactListApiOptions>>().Value);
 

@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using ContactListMvc.Configuration
+@using Microsoft.Extensions.Options
+@inject IOptions<CompanySettings> CompanySettings
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -37,7 +41,8 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2021 - ContactListMvc - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2021 - @CompanySettings.Value.Name - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            Contact: @CompanySettings.Value.Email
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
